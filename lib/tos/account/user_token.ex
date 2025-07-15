@@ -1,5 +1,5 @@
 defmodule Tos.Account.UserToken do
-  use Ecto.Schema
+  use Tos.Schema
   import Ecto.Query
   alias Tos.Account.UserToken
 

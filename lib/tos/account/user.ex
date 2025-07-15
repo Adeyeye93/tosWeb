@@ -1,9 +1,10 @@
 defmodule Tos.Account.User do
-  use Ecto.Schema
+  use Tos.Schema
   import Ecto.Changeset
 
   schema "users" do
     field :email, :string
+    field :username, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -37,9 +38,10 @@ defmodule Tos.Account.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :username, :password])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_username()
   end
 
   defp validate_email(changeset, opts) do
@@ -48,6 +50,12 @@ defmodule Tos.Account.User do
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> validate_length(:email, max: 160)
     |> maybe_validate_unique_email(opts)
+  end
+
+  defp validate_username(changeset) do
+    changeset
+    |> validate_required([:username])
+    |> validate_length(:username, max: 160)
   end
 
   defp validate_password(changeset, opts) do

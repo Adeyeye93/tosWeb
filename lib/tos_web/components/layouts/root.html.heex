@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <meta name="csrf-token" content="ZGaPRjiAIiNtLKdHpiXiv0sSstxvCALvvE6KuuJl">
     <meta name="description" content="Midone admin is super flexible, powerful, clean & modern responsive tailwind admin template with unlimited possibilities.">
     <meta name="keywords" content="admin template, midone Admin Template, dashboard template, flat admin template, responsive admin template, web app">
     <meta name="author" content="LEFT4CODE">
@@ -17,16 +16,25 @@
     <link rel="stylesheet" href={~p"/assets/css/themes/tinker/top-menu.css"}>
     <link rel="stylesheet" href={~p"/assets/css/vendors/simplebar.css"}>
     <link rel="stylesheet" href={~p"/assets/css/app.css"}> 
+    <link rel="stylesheet" href={~p"/assets/css/vendors/toastify.css"}> 
+    <link rel="stylesheet" href={~p"/assets/css/vendors/highlight.css"}> 
 
-    <.live_title suffix=" · Phoenix Framework">
+<%!-- <link rel="stylesheet" href="dist/css/vendors/toastify.css">
+    <link rel="stylesheet" href="dist/css/themes/tinker/top-menu.css">
+    <link rel="stylesheet" href="dist/css/vendors/simplebar.css">
+    <link rel="stylesheet" href="dist/css/vendors/highlight.css">
+    <link rel="stylesheet" href="dist/css/app.css"> --%>
+
+    <.live_title suffix=" · TOS">
       <%= assigns[:page_title] || "Tos" %>
     </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
-    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}}>
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
     </script>
   </head>
   <body>
    <%= if @current_user do %>
+    
       <div class="tinker min-h-screen dark:bg-background before:bg-primary dark:before:bg-foreground/[.01] before:fixed before:inset-0 before:bg-noise after:bg-accent after:bg-contain after:fixed after:inset-0 after:blur-xl dark:after:opacity-20 [--color-nav-foreground:var(--color-background)] dark:[--color-nav-foreground:var(--color-foreground)]">
         <div class="border-(--color-nav-foreground)/20 relative z-30 flex h-16 items-center border-b">
             <a class="text-(--color-nav-foreground) border-(--color-nav-foreground)/20 hidden h-full items-center border-r px-7 xl:flex" href="">
@@ -50,13 +58,13 @@
                 </div>
                 <ul class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">
                     <li class="[&:not(:last-child)&gt;a]:text-(--color-link) text-(--color-base) before:bg-(image:--background-image-chevron) relative before:absolute before:inset-y-0 before:my-auto before:-ml-4 before:size-2 before:-rotate-90 before:bg-center before:bg-no-repeat before:opacity-70 first:before:hidden">
-                        <a href="" class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">Apps</a>
+                        <.link patch={~p"/"} class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">Apps</.link>
                     </li>
                     <li class="[&:not(:last-child)&gt;a]:text-(--color-link) text-(--color-base) before:bg-(image:--background-image-chevron) relative before:absolute before:inset-y-0 before:my-auto before:-ml-4 before:size-2 before:-rotate-90 before:bg-center before:bg-no-repeat before:opacity-70 first:before:hidden">
-                        <a href="" class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">Dashboards</a>
+                        <.link patch={~p"/"} class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">Dashboards</.link>
                     </li>
                     <li class="[&:not(:last-child)&gt;a]:text-(--color-link) text-(--color-base) before:bg-(image:--background-image-chevron) relative before:absolute before:inset-y-0 before:my-auto before:-ml-4 before:size-2 before:-rotate-90 before:bg-center before:bg-no-repeat before:opacity-70 first:before:hidden">
-                        <a href="" class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex">Overview</a>
+                        <a href="#" class="truncate gap-x-6 mr-auto hidden [--background-image-chevron:var(--background-image-chevron-light)] [--color-base:--alpha(var(--color-nav-foreground)/70%)] [--color-link:var(--color-nav-foreground)] xl:flex"><%= @live_action %></a>
                     </li>
                 </ul>
                 <div class="quick-search-toggle bg-(--color-nav-foreground)/10 border-(--color-nav-foreground)/30 text-(--color-nav-foreground) hover:ring-foreground/5 flex h-9 cursor-pointer items-center rounded-full border px-4 ring-1 ring-transparent ring-offset-2 ring-offset-transparent">
@@ -153,22 +161,23 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="group/profile relative size-9 flex-none">
                     <span data-content="" class="tooltip border-(--color)/5 block relative flex-none overflow-hidden rounded-full border-3 ring-1 ring-(--color)/40 size-full [--color:var(--color-nav-foreground)]">
-                        <img class="absolute top-0 size-full object-cover" src="dist/images/fakers/profile-1.jpg" alt="Midone - Tailwind Admin Dashboard Template">
+                        <img class="absolute top-0 size-full object-cover" src={@avatar} alt="Midone - Tailwind Admin Dashboard Template">
                     </span>
                     <div class="hidden group-hover/profile:block">
                         <div class="box p-5 before:absolute before:inset-0 before:mx-3 before:-mb-3 before:border before:border-foreground/10 before:bg-background/30 before:z-[-1] after:absolute after:inset-0 after:border after:border-foreground/10 after:bg-background after:shadow-[0px_3px_5px_#0000000b] after:z-[-1] after:backdrop-blur-md before:shadow-foreground/5 absolute right-0 top-0 z-50 -mr-0.5 -mt-0.5 flex w-64 flex-col gap-2.5 px-6 py-5 before:rounded-2xl before:shadow-xl before:backdrop-blur after:rounded-2xl">
                             <div class="flex flex-col gap-0.5">
-                                <div class="font-medium">Sylvester Stallone</div>
+                                <div class="font-medium"><%= @current_user.username %></div>
                                 <div class="mt-0.5 text-xs opacity-70">DevOps Engineer</div>
                             </div>
                             <div class="bg-foreground/5 h-px"></div>
                             <div class="flex flex-col gap-0.5">
-                                <a class="hover:bg-foreground/5 -mx-3 flex gap-2.5 rounded-lg px-4 py-1.5" href="">
+                                <.link  class="hover:bg-foreground/5 -mx-3 flex gap-2.5 rounded-lg px-4 py-1.5" navigate={~p"/profile"}>
                                     <i data-lucide="users" class="size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25"></i>
                                     Profile
-                                </a>
+                                </.link>
                                 <a class="hover:bg-foreground/5 -mx-3 flex gap-2.5 rounded-lg px-4 py-1.5" href="">
                                     <i data-lucide="shield-alert" class="size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25"></i>
                                     Add Account
@@ -413,15 +422,7 @@
             <div class="pt-8 pb-12 px-7 z-10 relative xl:mt-8 before:absolute before:inset-0 before:opacity-[.07] before:bg-foreground before:rounded-4xl after:absolute after:inset-0 after:bg-[color-mix(in_oklch,_var(--color-background),_var(--color-foreground)_2%)] after:rounded-4xl after:border after:border-foreground/[.15] dark:after:opacity-[.59]">
                 <div class="before:bg-background/30 before:rounded-4xl before:border-foreground/[.15] before:absolute before:inset-0 before:mx-10 before:-mt-4 before:border xl:before:left-0 dark:before:opacity-[.59]">
                     <div class="relative z-20">
-                        <div>
-                            <div class="grid grid-cols-12 gap-6">
-                                <div class="col-span-12 2xl:col-span-9">
-                                    <div class="grid grid-cols-12 gap-6">
-                                          <%= @inner_content %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <%= @inner_content %>
                     </div>
                 </div>
             </div>
@@ -457,7 +458,44 @@
     <script src={~p"/assets/js/components/base/tiny-slider.js"}></script>
     <script src={~p"/assets/js/themes/rubick.js"}></script>
     <script src={~p"/assets/js/utils/helper.js"}></script>
-    <script src={~p"/assets/js/components/theme-switcher.js"}></script> 
+    <%!-- <script src={~p"/assets/js/components/theme-switcher.js"}></script>  --%>
+    <script src={~p"/assets/js/vendors/tab.js"}></script> 
+    <script src={~p"/assets/js/themes/tinker.js"}></script>
+    <script src={~p"/assets/js/vendor/toastify.js"}></script>
+    <script src={~p"/assets/js/components/base/toastify.js"}></script>
+    <script src={~p"/assets/js/vendors/highlight.js"}></script>
+    <script src={~p"/assets/js/components/base/highlight.js"}></script>
+    <script src={~p"/assets/js/components/report-bar-chart-1.js"}></script>
+    <script src={~p"/assets/js/components/report-donut-chart.js"}></script>
+    <script src={~p"/assets/js/components/simple-line-chart-3.js"}></script>
+    <script src={~p"/assets/js/components/simple-line-chart-4.js"}></script>
+    <script src={~p"/assets/js/vendors/alert.js"}></script>
+
 
   </body>
 </html>
+<%!-- 
+     <script src="dist/js/vendors/dom.js"></script>
+    <script src="dist/js/vendors/lucide.js"></script>
+    <script src="dist/js/vendors/modal.js"></script>
+    <script src="dist/js/vendors/alert.js"></script>
+    <script src="dist/js/vendors/popper.js"></script>
+    <script src="dist/js/vendors/dropdown.js"></script>
+    <script src="dist/js/vendors/tippy.js"></script>
+    <script src="dist/js/vendors/chartjs.js"></script>
+    <script src="dist/js/vendors/tab.js"></script>
+    <script src="dist/js/vendors/vector-map.js"></script>
+    <script src="dist/js/vendors/simplebar.js"></script>
+    <script src="dist/js/components/base/page-loader.js"></script>
+    <script src="dist/js/components/base/lucide.js"></script>
+    <script src="dist/js/components/base/tippy.js"></script>
+    <script src="dist/js/components/report-bar-chart-1.js"></script>
+    <script src="dist/js/components/report-donut-chart.js"></script>
+    <script src="dist/js/components/simple-line-chart-3.js"></script>
+    <script src="dist/js/components/simple-line-chart-4.js"></script>
+    <script src="dist/js/components/vector-map.js"></script>
+    <script src="dist/js/themes/tinker.js"></script>
+    <script src="dist/js/utils/helper.js"></script>
+    <script src="dist/js/components/theme-switcher.js"></script>
+    
+     --%>

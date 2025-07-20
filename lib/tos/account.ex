@@ -5,6 +5,7 @@ defmodule Tos.Account do
 
   import Ecto.Query, warn: false
   alias Tos.Repo
+  alias Ecto.Multi
 
   alias Tos.Account.{User, UserToken, UserNotifier}
 
@@ -74,11 +75,109 @@ defmodule Tos.Account do
       {:error, %Ecto.Changeset{}}
 
   """
+  # def register_user(attrs) do
+  #   %User{}
+  #   |> User.registration_changeset(attrs)
+  #   |> Repo.insert()
+  # end
+
+
+
   def register_user(attrs) do
-    %User{}
-    |> User.registration_changeset(attrs)
-    |> Repo.insert()
+  Multi.new()
+  |> Multi.insert(:users, User.registration_changeset(%User{}, attrs))
+  |> Multi.run(:preferences, fn repo, %{users: user} ->
+    default_keys = [
+  # 1. Data Sharing & Selling
+  "check_if_site_app_sells_my_data",
+  "check_if_site_app_shares_my_data_with_third_parties",
+  "check_if_data_sharing_for_marketing_purposes",
+  "check_if_data_sharing_for_analytics_purposes",
+  "check_if_site_sells_anonymized_data",
+  "check_if_data_sharing_with_affiliates_or_partners",
+  "check_if_data_sharing_with_law_enforcement_without_court_order",
+
+  # 2. Data Collection
+  "check_if_site_app_collects_usage_analytics",
+  "check_if_collects_precise_location_data",
+  "check_if_collects_approximate_location_data",
+  "check_if_access_to_contacts",
+  "check_if_access_to_calendar",
+  "check_if_access_to_camera",
+  "check_if_access_to_microphone",
+  "check_if_access_to_photos_media_library",
+  "check_if_reads_clipboard_or_copy_paste_data",
+  "check_if_reads_keyboard_input_data_keylogging",
+
+  # 3. Personalization & Tracking
+  "check_if_allows_personalized_ads_based_on_data",
+  "check_if_tracking_across_websites_apps_for_ad_targeting",
+  "check_if_profiling_for_recommendations",
+  "check_if_behavioral_tracking_for_ai_model_training",
+
+  # 4. Data Retention & Deletion
+  "check_if_allows_indefinite_retention_of_data",
+  "check_if_retention_after_account_deletion",
+  "check_if_data_used_after_account_deletion",
+
+  # 5. Employee Access & Internal Use
+  "check_if_employees_access_my_data_for_training_or_testing",
+  "check_if_ai_models_trained_on_my_personal_data",
+  "check_if_customer_support_can_read_private_messages_or_chats",
+  "check_if_internal_review_of_uploaded_files_or_photos",
+
+  # 6. Cross-Border Data Transfer
+  "check_if_my_data_transferred_to_other_countries",
+  "check_if_data_stored_in_countries_with_lower_privacy_protection",
+
+  # 7. Security Practices
+  "check_if_weak_encryption_for_data_at_rest",
+  "check_if_no_encryption_for_data_in_transit",
+  "check_if_hashed_passwords_shared_with_third_parties",
+
+  # 8. AI-Specific Concerns
+  "check_if_ai_analyzes_private_conversations_for_model_improvement",
+  "check_if_ai_generates_data_based_on_my_inputs_for_public_use",
+  "check_if_synthetic_data_generated_based_on_my_profile",
+
+  # 9. Communication & Contact
+  "check_if_allows_marketing_emails",
+  "check_if_allows_sms_marketing",
+  "check_if_allows_robocalls_or_automated_calls",
+
+  # 10. Miscellaneous Potentially Risky Practices
+  "check_if_background_data_collection_when_app_closed",
+  "check_if_persistent_background_location_tracking",
+  "check_if_app_installs_additional_software_or_services",
+  "check_if_automatic_subscription_renewals_without_notification",
+  "check_if_arbitration_clause_waiving_right_to_sue",
+  "check_if_class_action_waiver"
+]
+
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+     entries = Enum.map(default_keys, fn key ->
+    %{
+      users_id: user.id,
+      key: key,
+      value: false,
+      inserted_at: now,
+      updated_at: now
+    }
+  end)
+
+  {count, _} = repo.insert_all(Tos.User.Preference, entries)
+  {:ok, count}
+end)
+  |> Repo.transaction()
+  |> case do
+    {:ok, %{users: user}} ->
+      {:ok, user}
+
+    {:error, _step, reason, _changes} ->
+      {:error, reason}
   end
+end
+
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.

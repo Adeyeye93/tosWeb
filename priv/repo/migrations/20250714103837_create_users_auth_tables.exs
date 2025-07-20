@@ -7,6 +7,7 @@ defmodule Tos.Repo.Migrations.CreateUsersAuthTables do
     create table(:users) do
       add :email, :citext, null: false
       add :username, :citext, null: false
+      add :avatar, :citext, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :utc_datetime
 

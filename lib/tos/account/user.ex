@@ -5,6 +5,7 @@ defmodule Tos.Account.User do
   schema "users" do
     field :email, :string
     field :username, :string
+    field :avatar, :string, default: "default_avatar.png"
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -38,7 +39,7 @@ defmodule Tos.Account.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :username, :password])
+    |> cast(attrs, [:email, :username, :password, :avatar])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_username()

@@ -20,13 +20,17 @@ defmodule TosWeb.Router do
   scope "/", TosWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    # get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", TosWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", TosWeb do
+    pipe_through :api
+
+    post "/create_website", WebsiteController, :create
+    get "/get_website/:id", WebsiteController, :show
+    put "/update_website/:web_id/:data/:value", WebsiteController, :update
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:tos, :dev_routes) do
@@ -65,8 +69,10 @@ defmodule TosWeb.Router do
     pipe_through [:browser, :require_authenticated_user]
 
     live_session :require_authenticated_user,
-      on_mount: [{TosWeb.UserAuth, :ensure_authenticated}] do
+      on_mount: [{TosWeb.UserAuth, :ensure_authenticated}, {TosWeb.PageMounter, :default}] do
       live "/users/settings", UserSettingsLive, :edit
+      live "/", HomeLive, :Dashboard
+      live "/profile", ProfileLive, :Profile
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
     end
   end

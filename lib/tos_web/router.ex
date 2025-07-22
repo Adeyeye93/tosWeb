@@ -29,7 +29,7 @@ defmodule TosWeb.Router do
 
     post "/create_website", WebsiteController, :create
     get "/get_website/:id", WebsiteController, :show
-    put "/update_website/:web_id/:data/:value", WebsiteController, :update
+    put "/update_website", WebsiteController, :update
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

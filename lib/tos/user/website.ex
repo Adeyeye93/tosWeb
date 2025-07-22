@@ -6,7 +6,7 @@ defmodule Tos.User.Website do
     field :active, :boolean, default: false
     field :domain, :string
     field :pref, :id
-    field :user_id, :id
+    field :user_id, :string
     field :risk_score, :integer
     field :time_spent_seconds, :integer
 
@@ -16,7 +16,7 @@ defmodule Tos.User.Website do
   @doc false
   def changeset(website, attrs) do
     website
-    |> cast(attrs, [:domain, :active, :risk_score, :time_spent_seconds])
+    |> cast(attrs, [:domain, :active, :user_id, :risk_score, :time_spent_seconds])
     |> validate_required([:domain, :active, :risk_score, :time_spent_seconds])
   end
 end

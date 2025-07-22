@@ -1,13 +1,13 @@
 defmodule Tos.Website do
   alias Tos.User.Website
 
-  def save_website(web \\ "") do
+  def save_website(web \\ "", user) do
     %Website{}
-    |> Website.changeset(%{domain: web, active: false, risk_score: 0, time_spent_seconds: 0})
+    |> Website.changeset(%{domain: web, user_id: user, active: true, risk_score: 0, time_spent_seconds: 0})
     |> Tos.Repo.insert()
     |> case do
       {:ok, website} ->
-        {:ok, website}
+        {:ok, website.id}
 
       {:error, changeset} ->
         {:error, changeset}
@@ -26,4 +26,11 @@ defmodule Tos.Website do
         end
     end
   end
+
+  def get_all_site() do
+    Website
+    |> Tos.Repo.all()
+  end
+
+
 end

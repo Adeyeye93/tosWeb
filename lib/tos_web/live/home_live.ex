@@ -1,5 +1,58 @@
 defmodule TosWeb.HomeLive do
     use TosWeb, :live_view
+    alias Tos.Website
+
+    def risk_level(score) do
+      cond do
+        score <= 10 -> "Minimal Risk"
+        score <= 25 -> "Low Risk"
+        score <= 40 -> "Moderate Risk"
+        score <= 60 -> "Elevated Risk"
+        score <= 80 -> "High Risk"
+        true -> "Extreme Risk"
+      end
+    end
+
+
+    def mount(_param, _sesson, sockets) do
+        all_site = Website.get_all_site()
+        site_count = Enum.count(all_site)
+         group = Enum.group_by(all_site, fn site ->
+            risk_level(site.risk_score)
+          end)
+           minimal = Map.get(group, "Minimal Risk", [])
+          low = Map.get(group, "Low Risk", [])
+          moderate = Map.get(group, "Moderate Risk", [])
+          elevated = Map.get(group, "Elevated Risk", [])
+          high = Map.get(group, "High Risk", [])
+          extreme = Map.get(group, "Extreme Risk", [])
+
+          minimal_count = Enum.count(minimal)
+          low_count = Enum.count(low)
+          moderate_count = Enum.count(moderate)
+          elevated_count = Enum.count(elevated)
+          high_count = Enum.count(high)
+          extreme_count = Enum.count(extreme)
+
+
+          sockets =
+          sockets
+          |> assign(all_site: all_site)
+          |> assign(site_count: site_count)
+          |> assign(minimal_count: minimal_count)
+          |> assign(low_count: low_count)
+          |> assign(moderate_count: moderate_count)
+          |> assign(elevated_count: elevated_count)
+          |> assign(high_count: high_count)
+          |> assign(extreme_count: extreme_count)
+          |> assign(
+                    risk_labels: ["Minimal Risk", "Low Risk", "Moderate Risk", "Elevated Risk", "High Risk", "Extreme Risk"],
+                    risk_counts: [minimal_count, low_count, moderate_count, elevated_count, high_count, extreme_count],
+                    risk_colors: ["#28a745", "#cddc39", "#ffeb3b", "#ff9800", "#f44336", "#b71c1c"]
+                  )
+
+        {:ok, sockets}
+    end
 
 
     def render(assigns) do
@@ -429,6 +482,9 @@ defmodule TosWeb.HomeLive do
                             <div class="w-auto h-[208px]">
                               <canvas
                                 id="report-donut-chart"
+                                data-risk-labels={Jason.encode!(@risk_labels)}
+                                data-risk-counts={ Jason.encode!(@risk_counts)}
+                                data-risk-colors={ Jason.encode!(@risk_colors)}
                                 class="mt-3"
                                 width="456"
                                 height="392"
@@ -443,14 +499,14 @@ defmodule TosWeb.HomeLive do
                             <div
                               class="absolute top-0 left-0 flex flex-col items-center justify-center w-full h-full"
                             >
-                              <div class="text-2xl font-medium">2.501</div>
-                              <div class="mt-0.5 opacity-70">Active Users</div>
+                              <div class="text-2xl font-medium">{@site_count}</div>
+                              <div class="mt-0.5 opacity-70">Active Sites</div>
                             </div>
                           </div>
                           <div class="mx-auto mt-5 w-52 sm:w-auto">
                             <div class="flex items-center">
                               <div
-                                class="bg-(--color)/20 border-(--color)/60 mr-3 size-2 rounded-full border [--color:var(--color-primary)]"
+                                class="bg-[(--color)]/20 border-(--color)/60 mr-3 size-2 rounded-full border [--color:var(--color-primary)]"
                               ></div>
                               <span class="truncate">17 - 30 Years old</span>
                               <span class="ml-auto">62%</span>
@@ -602,8 +658,8 @@ defmodule TosWeb.HomeLive do
                   <div class="flex flex-wrap items-center gap-3">
                     <div class="mr-auto">
                       <div class="flex items-center text-xs opacity-70">
-                        AVAILABLE FUNDS
-                        <div data-content="Last updated 1 hour ago" class="tooltip">
+                        TOTAL SITE
+                        <div data-content="Including sites you restricted TOS from" class="tooltip">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="24"
@@ -624,7 +680,7 @@ defmodule TosWeb.HomeLive do
                         </div>
                       </div>
                       <div class="relative mt-3.5 text-xl font-medium leading-5">
-                        $447.957.877
+                        { @site_count }
                       </div>
                     </div>
                     <button
@@ -653,7 +709,7 @@ defmodule TosWeb.HomeLive do
                   class="box relative p-5 before:absolute before:inset-0 before:mx-3 before:-mb-3 before:border before:border-foreground/10 before:bg-background/30 before:shadow-[0px_3px_5px_#0000000b] before:z-[-1] before:rounded-xl after:absolute after:inset-0 after:border after:border-foreground/10 after:bg-background after:shadow-[0px_3px_5px_#0000000b] after:rounded-xl after:z-[-1] after:backdrop-blur-md mt-8 xl:min-h-0"
                 >
                   <div class="flex items-center">
-                    <div class="mr-5 text-lg font-medium truncate">Summary Report</div>
+                    <div class="mr-5 text-lg font-medium truncate">Your Privacy Risk Scale</div>
                     <a class="flex items-center ml-auto text-primary" href="">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -719,26 +775,28 @@ defmodule TosWeb.HomeLive do
                           <div
                             class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
                           >
-                            <div class="text-xs opacity-70">UNPAID LOAN</div>
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;">Minimal Risk
+                            </div>
+
                             <div class="mt-1.5 flex items-center">
-                              <div class="text-base">$155.430.000</div>
+                              <div class="text-base">{@minimal_count} sites</div>
                               <div
                                 class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-success)]"
-                                data-content="9% Higher than last month"
+                                data-content="Almost no concerning practices detected. Generally safe to proceed."
                               >
-                                2%
+                                 0 – 10%
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="24"
                                   height="24"
                                   viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
+                                  fill="#28a745"
+                                  stroke="#28a745"
                                   stroke-width="2"
                                   stroke-linecap="round"
                                   stroke-linejoin="round"
                                   data-lucide="chevron-up"
-                                  class="lucide lucide-chevron-up size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25 ml-0.5"
+                                  class="lucide lucide-chevron-up size-6 stroke-[3] [--color:#28a745] stroke-(#28a745) fill-#28a745 ml-0.5"
                                 >
                                   <path d="m18 15-6-6-6 6"></path>
                                 </svg>
@@ -748,26 +806,26 @@ defmodule TosWeb.HomeLive do
                           <div
                             class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
                           >
-                            <div class="text-xs opacity-70">ACTIVE FUNDING PARTNER</div>
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;"> Low Risk</div>
                             <div class="mt-1.5 flex items-center">
-                              <div class="text-base">52 Partner</div>
+                              <div class="text-base">{@low_count} sites</div>
                               <div
-                                class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-danger)]"
-                                data-content="9% Higher than last month"
+                                class="text-#cddc39 flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:#cddc39]"
+                                data-content="Minor concerns found. Review if necessary, but acceptable for most users."
                               >
-                                49%
+                                11 – 25%
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="24"
                                   height="24"
                                   viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
+                                  fill="#cddc39"
+                                  stroke="#cddc39"
                                   stroke-width="2"
                                   stroke-linecap="round"
                                   stroke-linejoin="round"
-                                  data-lucide="chevron-down"
-                                  class="lucide lucide-chevron-down size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25 ml-0.5"
+                                  data-lucide="chevron-up"
+                                  class="lucide lucide-chevron-down size-6 stroke-[3] [--color:#cddc39] stroke-#cddc39 fill-#cddc39/25 ml-0.5"
                                 >
                                   <path d="m6 9 6 6 6-6"></path>
                                 </svg>
@@ -777,26 +835,26 @@ defmodule TosWeb.HomeLive do
                           <div
                             class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
                           >
-                            <div class="text-xs opacity-70">PAID INSTALLMENT</div>
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;">Moderate Risk</div>
                             <div class="mt-1.5 flex items-center">
-                              <div class="text-base">$75.430.000</div>
+                              <div class="text-base">{@moderate_count} sites</div>
                               <div
                                 class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-success)]"
-                                data-content="9% Higher than last month"
+                                data-content="Noticeable concerns detected. Review policy carefully before proceeding."
                               >
-                                36%
+                                26 – 40%
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="24"
                                   height="24"
                                   viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
+                                  fill="#ffeb3b"
+                                  stroke="#ffeb3b"
                                   stroke-width="2"
                                   stroke-linecap="round"
                                   stroke-linejoin="round"
                                   data-lucide="chevron-up"
-                                  class="lucide lucide-chevron-up size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25 ml-0.5"
+                                  class="lucide lucide-chevron-up size-6 stroke-[3] [--color:#ffeb3b] stroke-[#ffeb3b] fill-[#ffeb3b]/25 ml-0.5"
                                 >
                                   <path d="m18 15-6-6-6 6"></path>
                                 </svg>
@@ -806,44 +864,86 @@ defmodule TosWeb.HomeLive do
                           <div
                             class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
                           >
-                            <div class="text-xs opacity-70">SUCCESS PAYMENT</div>
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;">Elevated Risk</div>
                             <div class="mt-1.5 flex items-center">
-                              <div class="text-base">100%</div>
-                            </div>
-                          </div>
-                          <div
-                            class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
-                          >
-                            <div class="text-xs opacity-70">
-                              WAITING FOR DISBURSEMENT
-                            </div>
-                            <div class="mt-1.5 flex items-center">
-                              <div class="text-base">2</div>
-                            </div>
-                          </div>
-                          <div
-                            class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
-                          >
-                            <div class="text-xs opacity-70">UNPAID LOAN</div>
-                            <div class="mt-1.5 flex items-center">
-                              <div class="text-base">$21.430.000</div>
+                              <div class="text-base">{@elevated_count} sites</div>
                               <div
                                 class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-danger)]"
-                                data-content="9% Higher than last month"
+                                data-content="Multiple significant concerns found. Caution advised."
                               >
-                                23%
+                                41 – 60%
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
                                   width="24"
                                   height="24"
                                   viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
+                                  fill="#ff9800"
+                                  stroke="#ff9800"
                                   stroke-width="2"
                                   stroke-linecap="round"
                                   stroke-linejoin="round"
                                   data-lucide="chevron-down"
-                                  class="lucide lucide-chevron-down size-4 stroke-[1.5] [--color:currentColor] stroke-(--color) fill-(--color)/25 ml-0.5"
+                                  class="lucide lucide-chevron-up size-6 stroke-[3] [--color:#ff9800] stroke-[#ff9800] fill-[#ff9800]/25 ml-0.5"
+                                >
+                                  <path d="m18 15-6-6-6 6"></path>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
+                          >
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;">
+                              High Risk
+                            </div>
+                            <div class="mt-1.5 flex items-center">
+                              <div class="text-base">{@high_count} sites</div>
+                              <div
+                                class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-danger)]"
+                                data-content="High number of risky or exploitative clauses. Strongly reconsider usage."
+                              >
+                                61 – 80%
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="#f44336"
+                                  stroke="#f44336"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  data-lucide="chevron-down"
+                                  class="lucide lucide-chevron-up size-6 stroke-[3] [--color:#f44336] stroke-[#f44336] fill-[#f44336]/25 ml-0.5"
+                                >
+                                  <path d="m18 15-6-6-6 6"></path>
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-12"
+                          >
+                            <div class="text-xs opacity-70" style="text-transform: uppercase;">Extreme Risk</div>
+                            <div class="mt-1.5 flex items-center">
+                              <div class="text-base">{@extreme_count} sites</div>
+                              <div
+                                class="text-(--color) flex cursor-pointer items-center rounded-full border px-2 py-px text-xs tooltip border-transparent bg-transparent [--color:var(--color-danger)]"
+                                data-content="Extremely dangerous or invasive practices detected. Avoid or take immediate action to protect your data."
+                              >
+                                81 - 100%
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="24"
+                                  height="24"
+                                  viewBox="0 0 24 24"
+                                  fill="#b71c1c"
+                                  stroke="#b71c1c"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  data-lucide="chevron-down"
+                                  class="lucide lucide-chevron-down size-6 stroke-[3] [--color:#b71c1c] stroke-[#b71c1c] fill-[#b71c1c]/25 ml-0.5"
                                 >
                                   <path d="m6 9 6 6 6-6"></path>
                                 </svg>
@@ -888,7 +988,4 @@ defmodule TosWeb.HomeLive do
       """
     end
 
-    def mount(_param, _sesson, sockets) do
-        {:ok, sockets}
-    end
 end

@@ -6,7 +6,7 @@ defmodule Tos.Repo.Migrations.CreateUserSites do
       add :domain, :string
       add :active, :boolean, default: false, null: false
       add :pref, references(:preferences, on_delete: :nothing)
-      add :user_id, references(:users, on_delete: :nothing)
+      add :user_id, :string, null: false
 
       add :risk_score, :integer, default: 0, null: false
       add :time_spent_seconds, :integer, default: 0, null: false

@@ -2,8 +2,8 @@ defmodule TosWeb.WebsiteController do
   use TosWeb, :controller
   alias Tos.Website
 
-  def create(conn, %{"domain" => domain}) do
-    case Website.save_website(domain) do
+  def create(conn, %{"domain" => domain, "user" => user}) do
+    case Website.save_website(domain, user) do
       {:ok, website} ->
         json(conn, %{status: "success", website: website})
       {:error, changeset} ->
